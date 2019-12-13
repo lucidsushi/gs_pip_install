@@ -22,6 +22,12 @@ gs_pip_install
 
 Pip Install Packages Stored in Google Cloud Buckets
 
+.. code-block:: bash
+
+        gs_pip_install --bucket_url gs://python-package-location --package_name google_cloud_utils==1.0.1
+
+        gs_pip_install --bucket_url gs://python-package-location --package_name google_cloud_utils --target_dir .
+
 
 * Free software: MIT license
 * Documentation: https://gs-pip-install.readthedocs.io.
