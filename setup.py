@@ -31,7 +31,7 @@ setup(
     description="Pip Install Packages Stored in Google Cloud Buckets",
     entry_points={
         'console_scripts': [
-            'gs_pip_install=gs_pip_install.cli:main',
+            'gs_pip_install=gs_pip_install.gs_pip_install:gs_pip_install',
         ],
     },
     install_requires=requirements,

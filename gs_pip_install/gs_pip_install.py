@@ -32,7 +32,7 @@ def gs_pip_install(bucket_url, package_name, target_dir):
 
     gs_package_path = (
         '{bucket_url}/{pkg_name}/{pkg_name_versioned}.tar.gz'.format(
-            pkg_location=bucket_url,
+            bucket_url=bucket_url,
             pkg_name=pkg_name_clean,
             pkg_name_versioned=pkg_name_versioned)
     )
@@ -46,7 +46,7 @@ def gs_pip_install(bucket_url, package_name, target_dir):
 
     for cmd in (
         ['gsutil', 'cp', gs_package_path, '.'],
-        pip_install
+        pip_install,
         ['rm', gs_package_name]
     ):
         subprocess.call(cmd)
