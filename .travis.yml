@@ -1,0 +1,19 @@
+language: python
+python:
+- 3.8
+- 3.7
+- 3.6
+- 3.5
+install: pip install -U tox-travis
+script: tox
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: lucidsushi
+  password:
+    secure: WYpwomV/YVK5AhBz3MpxRRPeMWXFXJDYYiPPqacJg4QG0A41zw7FgShzhJ8Kt1xDtpQpTgt5q5vsiqLzkOdZ/Jgmqhk9tYyZdlzJQggqvN8mdgPlRPpKwD1NLeaPYVvJ8Snd+Gcn+nDt44jID9/U1BxWJ9+uAMFCVw4kbzm3jAb5PcS6LjdrV6lE0f1dNLq5vGNjIFFvMIm0L7EknOTtPvPrzz88eoDrHqKM62EaaU28Qyn5NqbESS/eUWyOExbqJzluAxfQkLga41lU4cjV09fL9wqmHlbgUj98Im4QSonN98gtAtHYOj4xDVpqE1DmE01Lx1bRV7UYpl4+AEWN5y34H24y+1Hf/cgAFXoFKr9f0n5/xdlTKwGc/K0Og6PcS5DOzFH6+ygFnI+1Q7ercxRT7vQCZPuElL3dZU1M7f933zYGcB7A7e+mnZxTcym6QCqV471NEO4dOhh15dHeqkKvnMABpZ+MtHcXi+MiJLIW8MYXcCpk9QDLZAavQNF6rblsgUirc+yEcHEOQCXc2hYL5ERogFFnMjZtn1kTjM+q8xsv5WBwcpngHw+EkFRYFFb8tgw88/5i026BJhrdKmBIVYTc1YPw9zfyx8Hp2bYHXcqxufmVE1iE4vZgOoKGIjj+DSog1ITaasV8ZAKc/y41A68PcQgiPcxcwiuz684=
+  on:
+    tags: true
+    repo: lucidsushi/gs_pip_install
+    python: 3.8
+  
