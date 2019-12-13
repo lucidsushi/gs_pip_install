@@ -6,25 +6,20 @@ import click
 
 
 @click.command()
-@click.option('--bucket_url', help='Package source url to GCS bucket')
-@click.option('--package_name', help='Name of Python package')
-@click.option('--target_dir', default='', help='Directory where packages gets installed')  # noqa: E501
+@click.option('--bucket_url', help='(str) gs://some-bucket')
+@click.option('--package_name', help='(str) Name of Python package')
+@click.option('--target_dir', default='', help='(str) Directory to install package into')  # noqa: E501
 def gs_pip_install(bucket_url, package_name, target_dir):
-    """Pip install package_name-version.tar.gz stored in Google Cloud Storage
-    into target_dir
+    """Pip install {bucket_url}/{pkg_name}/{pkg_name_versioned}.tar.gz to
+    current enviroment or a target directory
 
-    - "gsutil" command line tool must exist
-    - package path must fit syntax of:
-        '{bucket_url}/{pkg_name}/{pkg_name_versioned}.tar.gz'
+    (0) "gsutil" command line tool must exist
 
     (1) Copy package_name.tar.gz from Google Cloud bucket
-    (2) Pip Install package_name.tar.gz into staging directory
-    (3) Remove the package_name.tar.gz
 
-    Args:
-        bucket_url(str): url to cloud storage (gs://some-bucket)
-        package_name(str): name of package stored on the cloud bucket
-        target_dir(str): directory to install package into
+    (2) Pip Install package_name.tar.gz into staging directory
+
+    (3) Remove the package_name.tar.gz
     """
 
     pkg_name_versioned = package_name.replace('==', '-')
