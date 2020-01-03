@@ -29,11 +29,12 @@ def main(bucket_url, package_name, r, target_dir):
         with open(r) as gs_requirements:
             for package_name in gs_requirements.readlines():
                 install_commands.append(
-                    form_install_command(bucket_url, package_name)
+                    form_install_command(bucket_url, package_name, target_dir)
                 )
     else:
-        install_commands.append(form_install_command(bucket_url, package_name))
-
+        install_commands.append(
+            form_install_command(bucket_url, package_name, target_dir)
+        )
     for install_command in install_commands:
         gs_pip_install(install_command)
 
