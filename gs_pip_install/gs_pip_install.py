@@ -76,8 +76,8 @@ def form_install_command(bucket_url, package_name="", target_dir=""):
 def gs_pip_install(install_command):
 
     for cmd in (
-        ["gsutil", "cp", install_command["path"], "."],
+        ["gsutil", "-q", "cp", install_command["path"], "."],
         install_command["install_command"],
-        ["rm", install_command["name"]],
+        ["rm", "-f", install_command["name"]],
     ):
         subprocess.call(cmd)
