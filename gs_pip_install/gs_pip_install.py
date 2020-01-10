@@ -57,14 +57,14 @@ def form_install_command(bucket_url, package_name="", target_dir=""):
             "-m",
             "pip",
             "install",
-            "-quiet",
+            "--quiet",
             "--no-deps",
             "-t",
             target_dir,
             gs_package_name,
         ]
     else:
-        pip_install = [sys.executable, "-m", "pip", "install", "-quiet", gs_package_name]
+        pip_install = [sys.executable, "-m", "pip", "install", "--quiet", gs_package_name]
 
     return {
         "install_command": pip_install,
