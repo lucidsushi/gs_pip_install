@@ -27,13 +27,15 @@ def main(bucket_url, package_name, r, target_dir):
     install_commands = []
     if r:
         with open(r) as gs_requirements:
-            for package_name in gs_requirements.splitlines():
+            for package_name in gs_requirements.readlines():
                 install_commands.append(
-                    form_install_command(bucket_url, package_name, target_dir)
+                    form_install_command(
+                        bucket_url, package_name.rstrip("\n"), target_dir
+                    )
                 )
     else:
         install_commands.append(
-            form_install_command(bucket_url, package_name, target_dir)
+            form_install_command(bucket_url, package_name.rstrip("\n"), target_dir)
         )
     for install_command in install_commands:
         gs_pip_install(install_command)
@@ -64,7 +66,14 @@ def form_install_command(bucket_url, package_name="", target_dir=""):
             gs_package_name,
         ]
     else:
-        pip_install = [sys.executable, "-m", "pip", "install", "--quiet", gs_package_name]
+        pip_install = [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--quiet",
+            gs_package_name,
+        ]
 
     return {
         "install_command": pip_install,
