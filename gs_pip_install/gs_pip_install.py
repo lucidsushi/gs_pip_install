@@ -27,7 +27,7 @@ def main(bucket_url, package_name, r, target_dir):
     install_commands = []
     if r:
         with open(r) as gs_requirements:
-            for package_name in gs_requirements.readlines():
+            for package_name in gs_requirements.splitlines():
                 install_commands.append(
                     form_install_command(bucket_url, package_name, target_dir)
                 )
