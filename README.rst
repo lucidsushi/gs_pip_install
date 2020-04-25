@@ -19,7 +19,7 @@ gs_pip_install
      :alt: Updates
 
 
- [ ~ Dependencies scanned by PyUp.io ~ ]
+[ ~ Dependencies scanned by PyUp.io ~ ]
 
 
 Pip Install Packages Stored in Google Cloud Buckets
