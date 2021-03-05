@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-requirements = ['Click>=7.0', 'google-cloud-storage==1.36.1']
+requirements = ['Click==7.1.2', 'google-cloud-storage==1.36.1']
 
 setup_requirements = ['pytest-runner', ]
 

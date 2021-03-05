@@ -1,19 +1,26 @@
 import os
 import subprocess
 import sys
+import shutil
+import logging
 
 import click
 from google.cloud import storage
 
+
 @click.command()
-@click.option("--download_dir", default="")
+@click.option("--project_id", help="(str) Name of GCP project")
+@click.option("--bucket_name", help="(str) Name of GCS bucket")
+@click.option(
+    "--req_file",
+    default="requirements_google_storage.txt",
+    help="(str) Name of Python requirements file",
+)
+@click.option("--download_dir", default="gcs_packages")
 @click.option(
     "--target_dir", default="", help="(str) Directory to install package into"
 )
-@click.option("--project_id", help="(str) Name of GCP project")
-@click.option("--bucket_name", help="(str) gs://some-bucket")
-@click.option("--req_file", help="(str) Name of Python requirements file")
-def main(download_dir, target_dir, project_id,bucket_name, req_file):
+def main(project_id, bucket_name, req_file, download_dir, target_dir):
     """Pip install {pkg_name}/{pkg_name_versioned}.tar.gz to
     current enviroment or a target directory
 
@@ -23,13 +30,17 @@ def main(download_dir, target_dir, project_id,bucket_name, req_file):
 
     (3) Remove the package_name.tar.gz
     """
-    download_packages(
-        bucket_name=bucket_name,
-        project_id=project_id,
-        gs_requirements_file=req_file,
-        packages_download_dir=download_dir
-    )
-    install_packages(download_dir,target_dir)
+    try:
+        download_packages(
+            bucket_name=bucket_name,
+            project_id=project_id,
+            gs_requirements_file=req_file,
+            packages_download_dir=download_dir,
+        )
+        install_packages(download_dir, target_dir)
+    finally:
+        shutil.rmtree(download_dir)
+
 
 def install_packages(packages_download_dir, target_dir):
     """[summary]
@@ -38,14 +49,14 @@ def install_packages(packages_download_dir, target_dir):
     :type packages_download_dir: [type]
     """
     for gs_package_zip_file in os.listdir(packages_download_dir):
-        if target_dir:
+        if not target_dir:
             install_command = [
                 sys.executable,
                 "-m",
                 "pip",
                 "install",
                 "--quiet",
-                f"{packages_download_dir}/{gs_package_zip_file}"
+                f"{packages_download_dir}/{gs_package_zip_file}",
             ]
         else:
             install_command = [
@@ -57,34 +68,30 @@ def install_packages(packages_download_dir, target_dir):
                 "--no-deps",
                 "-t",
                 target_dir,
-                f"{packages_download_dir}/{gs_package_zip_file}"
+                f"{packages_download_dir}/{gs_package_zip_file}",
             ]
         try:
             subprocess.check_output(install_command)
-        except:
+        except Exception:
             logging.warning("Attempting pip install with pyenv python")
             install_command[0] = f"{os.environ['HOME']}/.pyenv/shims/python"
             subprocess.check_output(install_command)
-
-    shutil.rmtree(packages_download_dir)
 
 
 def download_packages(
     packages_download_dir: str,
     bucket_name: str,
     project_id: str,
-    gs_requirements_file="requirements/requirements_google_storage.txt",
+    gs_requirements_file: str = "requirements/requirements_google_storage.txt",
 ):
-    """[summary]
+    """Download Python packages from GCS into a local directory.
 
-    :param packages_download_dir: [description]
-    :type packages_download_dir: [type]
-    :param gs_requirements_file: [description], defaults to "requirements/requirements_google_storage.txt"
-    :type gs_requirements_file: str, optional
-    :param bucket_name: [description]
-    :type bucket_name: str, optional
+    Args:
+        packages_download_dir (str): Local directory to download packages into
+        bucket_name (str): Name of GCS bucket to download packages from
+        project_id (str): Name of GCP project
+        gs_requirements_file (str): File listing packages found in bucket
     """
-    # gs_packages_destination = os.path.join(packages_download_dir)
     os.mkdir(packages_download_dir)
 
     storage_client = storage.Client()
@@ -101,5 +108,6 @@ def download_packages(
             gs_package_path = f"{name_no_version}/{package_filepath}"
 
             blob_package = bucket.blob(gs_package_path)
-            blob_package.download_to_filename(os.path.join(packages_download_dir, package_filepath))
-            # subprocess.call(["gsutil", "cp", gs_package_path, gs_packages_destination])
+            blob_package.download_to_filename(
+                os.path.join(packages_download_dir, package_filepath)
+            )
