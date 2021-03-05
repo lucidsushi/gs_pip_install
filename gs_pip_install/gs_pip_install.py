@@ -3,6 +3,7 @@ import subprocess
 import sys
 import shutil
 import logging
+from typing import Optional
 
 import click
 from google.cloud import storage
@@ -42,11 +43,13 @@ def main(project_id, bucket_name, req_file, download_dir, target_dir):
         shutil.rmtree(download_dir)
 
 
-def install_packages(packages_download_dir, target_dir):
-    """[summary]
+def install_packages(packages_download_dir: str, target_dir: Optional[str] = None):
+    """Install packages found in local directory. Do not install dependencies if
+    target directory is specified.
 
-    :param packages_download_dir: [description]
-    :type packages_download_dir: [type]
+    Args:
+        packages_download_dir (str): Directory containing packages
+        target_dir (str): Destination to install packages
     """
     for gs_package_zip_file in os.listdir(packages_download_dir):
         if not target_dir:
