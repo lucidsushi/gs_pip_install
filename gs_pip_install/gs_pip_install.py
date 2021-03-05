@@ -5,15 +5,15 @@ import sys
 import click
 from google.cloud import storage
 
-
-@click.option("--bucket_name", help="(str) gs://some-bucket")
-@click.option("--req_file", default="", help="(str) Name of Python requirements file")
+@click.command()
+@click.option("--download_dir", default="")
 @click.option(
     "--target_dir", default="", help="(str) Directory to install package into"
 )
 @click.option("--project_id", help="(str) Name of GCP project")
-@click.option("--download_dir", default="")
-def main(bucket_name, req_file, target_dir, project_id, download_dir):
+@click.option("--bucket_name", help="(str) gs://some-bucket")
+@click.option("--req_file", help="(str) Name of Python requirements file")
+def main(download_dir, target_dir, project_id,bucket_name, req_file):
     """Pip install {pkg_name}/{pkg_name_versioned}.tar.gz to
     current enviroment or a target directory
 
@@ -71,9 +71,9 @@ def install_packages(packages_download_dir, target_dir):
 
 def download_packages(
     packages_download_dir: str,
-    gs_requirements_file="requirements/requirements_google_storage.txt",
     bucket_name: str,
-    project_id: str
+    project_id: str,
+    gs_requirements_file="requirements/requirements_google_storage.txt",
 ):
     """[summary]
 
