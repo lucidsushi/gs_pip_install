@@ -17,10 +17,10 @@ from google.cloud import storage
     default="requirements_google_storage.txt",
     help="(str) Name of Python requirements file",
 )
-@click.option("--download_dir", default="gcs_packages")
 @click.option(
-    "--target_dir", default="", help="(str) Directory to install package into"
+    "--download_dir", default="gcs_packages", help="(str) File download destination"
 )
+@click.option("--target_dir", default="", help="(str) Package install destination")
 def main(project_id, bucket_name, req_file, download_dir, target_dir):
     """Pip install {pkg_name}/{pkg_name_versioned}.tar.gz to
     current enviroment or a target directory
