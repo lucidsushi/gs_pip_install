@@ -26,9 +26,10 @@ Pip Install Packages Stored in Google Cloud Buckets
 
 .. code-block:: bash
 
-        gs_pip_install --project_id gcp_project --bucket_name python-package-location 
-        gs_pip_install --project_id gcp_project --bucket_name python-package-location --target_dir package_install_destination
-        gs_pip_install --project_id gcp_project --bucket_name python-package-location --req_file requirements_custom.txt
+        
+        gs_pip_install -b python-package-location -r package_name
+        gs_pip_install -b python-package-location -r requirements_file.txt
+        gs_pip_install -b python-package-location -r requirements_file.txt -t package_install_destination
 
 
 

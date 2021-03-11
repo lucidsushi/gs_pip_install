@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Tests for `gs_pip_install` package."""
 
 import unittest
@@ -35,59 +34,60 @@ class TestInstall(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    @mock.patch('gs_pip_install.gs_pip_install.download_packages')
     @mock.patch('gs_pip_install.gs_pip_install.install_packages')
-    def test_cli_default_args(self, mock_install, mock_download):
-        project = 'middle_earth'
+    @mock.patch('gs_pip_install.gs_pip_install.download_packages')
+    def test_cli_package_name(self, mock_download, mock_install):
+        bucket = 'the-shire'
+        pkg_dir_diff = 'gcs_packages'
+        package_name = 'one-ring'
+        target_dir = 'bullseye'
+
+        install_args = [
+            '-b',
+            bucket,
+            '-r',
+            package_name,
+            '-t',
+            target_dir,
+            '-d',
+            pkg_dir_diff,
+        ]
+        runner = CliRunner()
+        runner.invoke(gs_pip_install.main, install_args)
+        mock_download.assert_called_once_with(
+            bucket_name=bucket,
+            package_list=[package_name],
+            packages_download_dir=pkg_dir_diff,
+        )
+
+        mock_install.assert_called_once_with(pkg_dir_diff, target_dir)
+
+    @mock.patch('gs_pip_install.gs_pip_install.install_packages')
+    @mock.patch('gs_pip_install.gs_pip_install.download_packages')
+    def test_cli_req_file(self, mock_download, mock_install):
+        req_file_path = os.path.join(self.test_dir, self.req_file)
         bucket = 'the-shire'
         pkg_dir_default = 'gcs_packages'
-        req_file_default = 'requirements_google_storage.txt'
 
-        install_args = ['--project_id', project, '--bucket_name', bucket]
+        install_args = ['-b', bucket, '-r', req_file_path]
 
         runner = CliRunner()
         runner.invoke(gs_pip_install.main, install_args)
         mock_download.assert_called_once_with(
-            project_id=project,
             bucket_name=bucket,
-            gs_requirements_file=req_file_default,
+            package_list=self.example_packages,
             packages_download_dir=pkg_dir_default,
         )
         mock_install.assert_called_once_with(pkg_dir_default, '')
 
-        req_file_new = 'req.txt'
-        pkg_dir_new = 'down_dir'
-        target_dir_new = 'bullseye'
-        install_args += [
-            '--req_file',
-            req_file_new,
-            '--download_dir',
-            pkg_dir_new,
-            '--target_dir',
-            target_dir_new,
-        ]
-        runner.invoke(
-            gs_pip_install.main,
-            install_args,
-        )
-        mock_download.assert_called_with(
-            project_id=project,
-            bucket_name=bucket,
-            gs_requirements_file=req_file_new,
-            packages_download_dir=pkg_dir_new,
-        )
-        mock_install.assert_called_with(pkg_dir_new, target_dir_new)
-
     @mock.patch('google.cloud.storage.Client')
     @mock.patch('os.mkdir')
     def test_download_packages(self, mock_mkdir, mock_gcs):
-        req_filepath = os.path.join(self.test_dir, self.req_file)
         with mock.patch('os.path.join') as mock_path:
             gs_pip_install.download_packages(
                 packages_download_dir=self.download_dir,
                 bucket_name='the-shire',
-                project_id='middle-earth',
-                gs_requirements_file=req_filepath,
+                package_list=self.example_packages,
             )
 
             expected_path_calls = [
@@ -110,6 +110,7 @@ class TestInstall(unittest.TestCase):
                     "pip",
                     "install",
                     "--quiet",
+                    "--upgrade",
                     f"{os.path.join(package_dest, package)}",
                 ]
             )
@@ -119,8 +120,6 @@ class TestInstall(unittest.TestCase):
         package_dest = os.path.join(self.test_dir, self.download_dir)
         test_target_dir = 'some_dir'
 
-        # mock_bucket = storage_client.get_bucket('test-bucket')
-        # mock_blob = mock_bucket.blob('blob1')
         gs_pip_install.install_packages(
             packages_download_dir=package_dest, target_dir=test_target_dir
         )
@@ -134,6 +133,7 @@ class TestInstall(unittest.TestCase):
                     "install",
                     "--quiet",
                     "--no-deps",
+                    '--upgrade',
                     "-t",
                     test_target_dir,
                     f"{os.path.join(package_dest, package)}",

@@ -3,25 +3,27 @@ import subprocess
 import sys
 import shutil
 import logging
-from typing import Optional
+from typing import Optional, List
 
 import click
 from google.cloud import storage
 
 
 @click.command()
-@click.option("--project_id", help="(str) Name of GCP project")
-@click.option("--bucket_name", help="(str) Name of GCS bucket")
+@click.option('-b', "--bucket_name", help="(str) Name of GCS bucket")
 @click.option(
-    "--req_file",
-    default="requirements_google_storage.txt",
-    help="(str) Name of Python requirements file",
+    '-r',
+    "--requirement",
+    help="(str) Name of Python package or requirements file",
 )
 @click.option(
-    "--download_dir", default="gcs_packages", help="(str) File download destination"
+    '-d',
+    "--download_dir",
+    default="gcs_packages",
+    help="(optional, str) File download destination",
 )
-@click.option("--target_dir", default="", help="(str) Package install destination")
-def main(project_id, bucket_name, req_file, download_dir, target_dir):
+@click.option("-t", "--target", default="", help="(str) Package install destination")
+def main(bucket_name, requirement, download_dir, target):
     """Pip install {pkg_name}/{pkg_name_versioned}.tar.gz to
     current enviroment or a target directory
 
@@ -32,15 +34,24 @@ def main(project_id, bucket_name, req_file, download_dir, target_dir):
     (3) Remove the package_name.tar.gz
     """
     try:
+        packages = []
+        if os.path.isfile(requirement):
+            with open(requirement) as gs_requirements:
+                for package_name in gs_requirements.readlines():
+                    packages.append(package_name.strip())
+        else:
+            packages.append(requirement)
+
         download_packages(
             bucket_name=bucket_name,
-            project_id=project_id,
-            gs_requirements_file=req_file,
+            package_list=packages,
             packages_download_dir=download_dir,
         )
-        install_packages(download_dir, target_dir)
+        logging.info('download done')
+        install_packages(download_dir, target)
     finally:
-        shutil.rmtree(download_dir)
+        if os.path.exists(download_dir):
+            shutil.rmtree(download_dir)
 
 
 def install_packages(packages_download_dir: str, target_dir: Optional[str] = None):
@@ -59,6 +70,7 @@ def install_packages(packages_download_dir: str, target_dir: Optional[str] = Non
                 "pip",
                 "install",
                 "--quiet",
+                "--upgrade",
                 f"{packages_download_dir}/{gs_package_zip_file}",
             ]
         else:
@@ -69,6 +81,7 @@ def install_packages(packages_download_dir: str, target_dir: Optional[str] = Non
                 "install",
                 "--quiet",
                 "--no-deps",
+                "--upgrade",
                 "-t",
                 target_dir,
                 f"{packages_download_dir}/{gs_package_zip_file}",
@@ -84,33 +97,28 @@ def install_packages(packages_download_dir: str, target_dir: Optional[str] = Non
 def download_packages(
     packages_download_dir: str,
     bucket_name: str,
-    project_id: str,
-    gs_requirements_file: str = "requirements/requirements_google_storage.txt",
+    package_list: List[str],
 ):
     """Download Python packages from GCS into a local directory.
 
     Args:
         packages_download_dir (str): Local directory to download packages into
         bucket_name (str): Name of GCS bucket to download packages from
-        project_id (str): Name of GCP project
-        gs_requirements_file (str): File listing packages found in bucket
+        packages list(str): Names of packages found in bucket
     """
     os.mkdir(packages_download_dir)
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
 
-    with open(gs_requirements_file) as gs_requirements:
-        for package_name in gs_requirements.readlines():
-            package_name = package_name.rstrip("\n")
+    for package_name in package_list:
+        name_no_version = package_name.split("==")[0]
+        name_versioned = package_name.replace("==", "-")
 
-            name_no_version = package_name.split("==")[0]
-            name_versioned = package_name.replace("==", "-")
+        package_filepath = f"{name_versioned}.tar.gz"
+        gs_package_path = f"{name_no_version}/{package_filepath}"
 
-            package_filepath = f"{name_versioned}.tar.gz"
-            gs_package_path = f"{name_no_version}/{package_filepath}"
-
-            blob_package = bucket.blob(gs_package_path)
-            blob_package.download_to_filename(
-                os.path.join(packages_download_dir, package_filepath)
-            )
+        blob_package = bucket.blob(gs_package_path)
+        blob_package.download_to_filename(
+            os.path.join(packages_download_dir, package_filepath)
+        )

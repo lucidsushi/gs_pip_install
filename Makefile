@@ -52,7 +52,7 @@ lint:
 	flake8 gs_pip_install tests
 
 test: ## run tests quickly with the default Python
-	pytest
+	python -m pytest -srA 
 
 test-all: ## run tests on every Python version with tox
 	tox
