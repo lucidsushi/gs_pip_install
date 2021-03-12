@@ -26,11 +26,11 @@ Pip Install Packages Stored in Google Cloud Buckets
 
 .. code-block:: bash
 
-        gs_pip_install --bucket_url gs://python-package-location --package_name google_cloud_utils==1.0.1
+        
+        gs_pip_install -b python-package-location -r package_name
+        gs_pip_install -b python-package-location -r requirements_file.txt
+        gs_pip_install -b python-package-location -r requirements_file.txt -t package_install_destination
 
-        gs_pip_install --bucket_url gs://python-package-location --package_name google_cloud_utils --target_dir .
-
-        gs_pip_install --bucket_url gs://python-package-location --r bucket_only_requirements.txt
 
 
 
