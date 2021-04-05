@@ -53,14 +53,14 @@ class TestInstall(unittest.TestCase):
             pkg_dir_diff,
         ]
         runner = CliRunner()
-        runner.invoke(gs_pip_install.main, install_args)
+        result = runner.invoke(gs_pip_install.main, install_args)
+
         mock_download.assert_called_once_with(
             bucket_name=bucket,
             package_list=[package_name],
             packages_download_dir=pkg_dir_diff,
         )
-
-        mock_install.assert_called_once_with(pkg_dir_diff, target_dir)
+        mock_install.assert_called_once_with(pkg_dir_diff, target_dir, extras={})
 
     @mock.patch('gs_pip_install.gs_pip_install.install_packages')
     @mock.patch('gs_pip_install.gs_pip_install.download_packages')
@@ -78,7 +78,7 @@ class TestInstall(unittest.TestCase):
             package_list=self.example_packages,
             packages_download_dir=pkg_dir_default,
         )
-        mock_install.assert_called_once_with(pkg_dir_default, '')
+        mock_install.assert_called_once_with(pkg_dir_default, '', extras={})
 
     @mock.patch('google.cloud.storage.Client')
     @mock.patch('os.mkdir')
@@ -139,3 +139,24 @@ class TestInstall(unittest.TestCase):
                     f"{os.path.join(package_dest, package)}",
                 ]
             )
+
+    @mock.patch('os.listdir')
+    @mock.patch('subprocess.check_output')
+    def test_install_packages_with_extras(self, mock_subprocess, mock_list_dir):
+
+        mock_list_dir.return_value = ['some_package.tar.gz']
+        gs_pip_install.install_packages(
+            packages_download_dir='some_download_dest',
+            extras={'some_package': 'extra_a, extra_b'},
+        )
+        mock_subprocess.assert_called_once_with(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "--quiet",
+                "--upgrade",
+                "some_download_dest/some_package.tar.gz[extra_a, extra_b]",
+            ]
+        )
