@@ -53,7 +53,7 @@ class TestInstall(unittest.TestCase):
             pkg_dir_diff,
         ]
         runner = CliRunner()
-        result = runner.invoke(gs_pip_install.main, install_args)
+        runner.invoke(gs_pip_install.main, install_args)
 
         mock_download.assert_called_once_with(
             bucket_name=bucket,

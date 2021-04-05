@@ -145,7 +145,7 @@ def _strip_extras(path: str) -> Tuple[str, Optional[str]]:
         The function splits a package name into package without extras
         and extras.
         Function obtained from PIP Source Code
-        https://github.com/pypa/pip/blob/5bc7b33d41546c218e2ae786b02a7d30c2d1723c/src/pip/_internal/req/constructors.py#L42   
+        https://github.com/pypa/pip/blob/5bc7b33d41546c218e2ae786b02a7d30c2d1723c/src/pip/_internal/req/constructors.py#L42
     """
     m = re.match(r'^(.+)(\[[^\]]+\])$', path)
     extras = None
