@@ -143,11 +143,12 @@ class TestInstall(unittest.TestCase):
     @mock.patch('os.listdir')
     @mock.patch('subprocess.check_output')
     def test_install_packages_with_extras(self, mock_subprocess, mock_list_dir):
-
+        
+        
         mock_list_dir.return_value = ['some_package.tar.gz']
         gs_pip_install.install_packages(
             packages_download_dir='some_download_dest',
-            extras={'some_package': 'extra_a, extra_b'},
+            extras={'some_package': '[extra_a, extra_b]'},
         )
         mock_subprocess.assert_called_once_with(
             [
@@ -160,3 +161,12 @@ class TestInstall(unittest.TestCase):
                 "some_download_dest/some_package.tar.gz[extra_a, extra_b]",
             ]
         )
+        
+
+    @mock.patch('gs_pip_install.gs_pip_install._strip_extras')
+    def test_strip_extras(self, mock_strip_extras):
+        
+        mock_strip_extras('some_package.tar.gz[extra_a, extra_b]')
+        expected = [('some_package.tar.gz', '[extra_a, extra_b]')]
+        
+        mock_strip_extras.calls == expected

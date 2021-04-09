@@ -76,7 +76,7 @@ def install_packages(
         package, *_ = gs_package_zip_file.split('.')
         install_path = f"{packages_download_dir}/{gs_package_zip_file}"
         if extras.get(package):
-            install_path = f"{install_path}[{extras[package]}]"
+            install_path = f"{install_path}{extras[package]}"
 
         if not target_dir:
             install_command = [
