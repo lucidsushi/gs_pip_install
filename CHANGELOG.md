@@ -1,3 +1,6 @@
+## 0.2.2
+- patch: fix install path and add test to show strip extras return
+
 ## 0.2.1
 - Added support for pip install extras
 
