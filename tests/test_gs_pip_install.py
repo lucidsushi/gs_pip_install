@@ -147,7 +147,7 @@ class TestInstall(unittest.TestCase):
         mock_list_dir.return_value = ['some_package.tar.gz']
         gs_pip_install.install_packages(
             packages_download_dir='some_download_dest',
-            extras={'some_package': 'extra_a, extra_b'},
+            extras={'some_package': '[extra_a, extra_b]'},
         )
         mock_subprocess.assert_called_once_with(
             [
@@ -160,3 +160,13 @@ class TestInstall(unittest.TestCase):
                 "some_download_dest/some_package.tar.gz[extra_a, extra_b]",
             ]
         )
+
+    def test_strip_extras(self):
+
+        # fmt: off
+        assert gs_pip_install._strip_extras(
+            'some_package.tar.gz[extra_a, extra_b]'
+        ) == (
+            'some_package.tar.gz', '[extra_a, extra_b]'
+        )
+        # fmt: on
