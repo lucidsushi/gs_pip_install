@@ -1,3 +1,6 @@
+## 0.2.4
+- patch: prefer shim python as first executable to use for python
+
 ## 0.2.3
 - patch: attempt to print out install_command on failures
 
