@@ -104,9 +104,12 @@ def install_packages(
         try:
             subprocess.check_output(install_command)
         except Exception as e:
+            logging.error(f"install failed using: {install_command}")
             logging.warning(f"Attempting pip install with pyenv python:\n {e}")
             install_command[0] = f"{os.environ['HOME']}/.pyenv/shims/python"
             subprocess.check_output(install_command)
+        except Exception as e:
+            logging.error(f"install failed using: {install_command}")
 
 
 def download_packages(
