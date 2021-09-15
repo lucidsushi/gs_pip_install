@@ -1,3 +1,6 @@
+## 0.2.3
+- patch: attempt to print out install_command on failures
+
 ## 0.2.2
 - patch: fix install path and add test to show strip extras return
 
