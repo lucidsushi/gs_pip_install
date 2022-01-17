@@ -1,3 +1,6 @@
+## 0.2.5
+- patch: fix-foward to undo diff in 0.2.4
+
 ## 0.2.4
 - patch: prefer shim python as first executable to use for python
 
