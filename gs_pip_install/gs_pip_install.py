@@ -13,9 +13,7 @@ from google.cloud import storage
 @click.command()
 @click.option('-b', "--bucket_name", help="(str) Name of GCS bucket")
 @click.option(
-    '-r',
-    "--requirement",
-    help="(str) Name of Python package or requirements file",
+    '-r', "--requirement", help="(str) Name of Python package or requirements file",
 )
 @click.option(
     '-d',
@@ -80,10 +78,9 @@ def install_packages(
         if extras.get(package):
             install_path = f"{install_path}{extras[package]}"
 
-        shims_python = f"{os.environ['HOME']}/.pyenv/shims/python"
         if not target_dir:
             install_command = [
-                shims_python,
+                sys.executable,
                 "-m",
                 "pip",
                 "install",
@@ -93,7 +90,7 @@ def install_packages(
             ]
         else:
             install_command = [
-                shims_python,
+                sys.executable,
                 "-m",
                 "pip",
                 "install",
@@ -108,15 +105,15 @@ def install_packages(
             subprocess.check_output(install_command)
         except Exception as e:
             logging.error(f"install failed using: {install_command}")
-            logging.warning(f"{e}\nAttempting pip install with sys.executable\n")
-            install_command[0] = sys.executable
+            logging.warning(f"Attempting pip install with pyenv python:\n {e}")
+            install_command[0] = f"{os.environ['HOME']}/.pyenv/shims/python"
             subprocess.check_output(install_command)
+        except Exception as e:
+            logging.error(f"install failed using: {install_command}")
 
 
 def download_packages(
-    packages_download_dir: str,
-    bucket_name: str,
-    package_list: List[str],
+    packages_download_dir: str, bucket_name: str, package_list: List[str],
 ):
     """Download Python packages from GCS into a local directory.
 
@@ -148,10 +145,10 @@ def download_packages(
 
 def _strip_extras(path: str) -> Tuple[str, Optional[str]]:
     """
-    The function splits a package name into package without extras
-    and extras.
-    Function obtained from PIP Source Code
-    https://github.com/pypa/pip/blob/5bc7b33d41546c218e2ae786b02a7d30c2d1723c/src/pip/_internal/req/constructors.py#L42
+        The function splits a package name into package without extras
+        and extras.
+        Function obtained from PIP Source Code
+        https://github.com/pypa/pip/blob/5bc7b33d41546c218e2ae786b02a7d30c2d1723c/src/pip/_internal/req/constructors.py#L42
     """
     m = re.match(r'^(.+)(\[[^\]]+\])$', path)
     extras = None

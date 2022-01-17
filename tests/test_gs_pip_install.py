@@ -4,6 +4,7 @@ import unittest
 import tempfile
 import shutil
 import os
+import sys
 from unittest import mock
 
 from click.testing import CliRunner
@@ -104,7 +105,7 @@ class TestInstall(unittest.TestCase):
             mock_subprocess.call_count == 2
             mock_subprocess.assert_any_call(
                 [
-                    f"{os.environ['HOME']}/.pyenv/shims/python",
+                    sys.executable,
                     "-m",
                     "pip",
                     "install",
@@ -126,7 +127,7 @@ class TestInstall(unittest.TestCase):
             mock_subprocess.call_count == 2
             mock_subprocess.assert_any_call(
                 [
-                    f"{os.environ['HOME']}/.pyenv/shims/python",
+                    sys.executable,
                     "-m",
                     "pip",
                     "install",
@@ -150,7 +151,7 @@ class TestInstall(unittest.TestCase):
         )
         mock_subprocess.assert_called_once_with(
             [
-                f"{os.environ['HOME']}/.pyenv/shims/python",
+                sys.executable,
                 "-m",
                 "pip",
                 "install",
