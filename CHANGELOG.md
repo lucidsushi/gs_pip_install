@@ -1,3 +1,6 @@
+## 0.2.6
+- patch: increase version of cloud-storage to match a key downstream consumer
+
 ## 0.2.5
 - patch: fix-foward to undo diff in 0.2.4
 
